@@ -38,17 +38,22 @@ Avant de commencer, assurez-vous d'avoir les outils suivants installés sur votr
     - Mettez à jour les variables de connexion à la base de données, par exemple :
 
       ```
-      DATABASE_URL="mysql://user:password@127.0.0.1:3306/toodoux_db"
+      DATABASE_URL="mysql://symfony:symfony@127.0.0.1:3306/toodoux_db"
       ```
-
-4. Initialisez la base de données :
+      
+4. Lancer le conteneur Docker :
 
    ```bash
-   php bin/console doctrine:database:create
+   docker-compose up -d
+   ```
+
+5. Initialisez la base de données :
+
+   ```bash
    php bin/console doctrine:migrations:migrate
    ```
 
-5. Démarrez le serveur de développement Symfony :
+6. Démarrez le serveur de développement Symfony :
 
    ```bash
    symfony server:start
