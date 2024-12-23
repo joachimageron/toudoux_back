@@ -1,0 +1,32 @@
+services:
+  # Service MySQL
+  mysql:
+    image: mysql:8.0
+    container_name: toudoux_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: symfony
+      MYSQL_PASSWORD: symfony
+      MYSQL_DATABASE: toudoux_db
+    ports:
+      - '3307:3306'
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  # Service phpMyAdmin
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: toudoux_phpmyadmin
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: symfony       # le même utilisateur que ci-dessus
+      PMA_PASSWORD: symfony   # le même mot de passe que ci-dessus
+    ports:
+      - '8080:80'
+    restart: always
+
+volumes:
+  mysql_data:
