@@ -1,34 +1,42 @@
 security:
-    # Encoders ou Password Hashers
+    # https://symfony.com/doc/current/security.html#c-hashing-passwords
     password_hashers:
-        App\Entity\User:
-            algorithm: auto
+        App\Entity\User: 'auto'
 
+    # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
     providers:
-        # On définit comment on récupère les utilisateurs depuis la base
-        app_user_provider:
+        # used to reload user from session & other features (e.g. switch_user)
+        users:
             entity:
                 class: App\Entity\User
                 property: email
 
     firewalls:
-        # Le "firewall" principal
-        main:
-            pattern: ^/
-            provider: app_user_provider
-            stateless: true
-            json_login:
-                check_path: /api/login
-                username_path: email
-                password_path: password
-            # On dit à Symfony d'utiliser lexik_jwt pour l'authentification
-            jwt: ~
-
         dev:
-            pattern: ^/(_(profiler|wdt)|css|images|js)
+            pattern: ^/_(profiler|wdt)
             security: false
 
+        doc:
+            pattern: ^/api/doc
+            security: false
+
+        register:
+            pattern: ^/api/register
+            security: false
+
+        main:
+            stateless: true
+            provider: users
+            json_login:
+                check_path: auth # The name in routes.yaml is enough for mapping
+                username_path: email
+                password_path: password
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+            jwt: ~
+
     access_control:
-        # Exige d'être connecté pour toute route commençant par /api sauf /api/login
-        - { path: ^/api/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/$, roles: PUBLIC_ACCESS } # Allows accessing the Swagger UI
+        - { path: ^/docs, roles: PUBLIC_ACCESS } # Allows accessing the Swagger UI docs
+        - { path: ^/auth, roles: PUBLIC_ACCESS }
+        - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
