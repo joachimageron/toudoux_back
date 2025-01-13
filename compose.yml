@@ -14,6 +14,13 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
 
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: mailhog
+    ports:
+      - "1025:1025" # Port SMTP pour Symfony Mailer
+      - "8025:8025" # Interface Web pour visualiser les e-mails
+
   # Service phpMyAdmin
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest

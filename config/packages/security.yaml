@@ -21,7 +21,11 @@ security:
             security: false
 
         register:
-            pattern: ^/api/register
+            pattern: ^/api/users
+            security: false
+
+        app_password_reset:
+            pattern: /password/reset
             security: false
 
         main:
@@ -35,10 +39,12 @@ security:
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
             jwt: ~
-
+                
     access_control:
-        - { path: ^/$, roles: PUBLIC_ACCESS } # Allows accessing the Swagger UI
+        - { path: ^/$, roles: IS_AUTHENTICATED_FULLY } # Allows accessing the Swagger UI
         - { path: ^/docs, roles: PUBLIC_ACCESS } # Allows accessing the Swagger UI docs
-        - { path: ^/auth, roles: PUBLIC_ACCESS }
-        - { path: ^/api, roles: PUBLIC_ACCESS }
+        - { path: ^/auth, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/dashboard, roles: IS_AUTHENTICATED_FULLY }
+        

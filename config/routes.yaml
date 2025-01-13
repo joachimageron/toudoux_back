@@ -9,6 +9,11 @@ auth:
     path: /api/auth
     methods: ['POST']
 
+app_password_reset:
+    path: /password/reset
+    controller: App\Controller\PasswordResetController::sendMail
+    methods: ['POST']
+
 # config/routes.yaml
 app.swagger_ui:
     path: /api/doc

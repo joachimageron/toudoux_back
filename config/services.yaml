@@ -4,6 +4,7 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    app.admin_email: "admin@hb-corp.com"
 
 services:
     # default configuration for services in *this* file
@@ -22,5 +23,8 @@ services:
     App\State\UserPasswordHasher:
         bind:
             $processor: '@api_platform.doctrine.orm.state.persist_processor'
+    App\Mail\SendMail:
+        arguments:
+            $mailer: '@mailer.mailer'
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
