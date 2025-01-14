@@ -41,18 +41,8 @@ security:
             jwt: ~
                 
     access_control:
-<<<<<<< HEAD
-        - { path: ^/$, roles: IS_AUTHENTICATED_FULLY } # Allows accessing the Swagger UI
-        - { path: ^/docs, roles: PUBLIC_ACCESS } # Allows accessing the Swagger UI docs
-        - { path: ^/auth, roles: IS_AUTHENTICATED_FULLY }
-        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
-        - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
-        - { path: ^/dashboard, roles: IS_AUTHENTICATED_FULLY }
-        
-=======
         - { path: ^/$, roles: PUBLIC_ACCESS }
         - { path: ^/api/doc, roles: PUBLIC_ACCESS }
         - { path: ^/auth, roles: PUBLIC_ACCESS }
         - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
->>>>>>> 99c741ce9c6fae0332c57c1a73d14a20dbb2a636

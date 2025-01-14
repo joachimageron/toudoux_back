@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20250113152244 extends AbstractMigration
+final class Version20250114074152 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -20,6 +20,7 @@ final class Version20250113152244 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
+        $this->addSql('ALTER TABLE category CHANGE description description VARCHAR(250) DEFAULT NULL');
         $this->addSql('CREATE UNIQUE INDEX UNIQ_64C19C1989D9B62 ON category (slug)');
     }
 
@@ -27,5 +28,6 @@ final class Version20250113152244 extends AbstractMigration
     {
         // this down() migration is auto-generated, please modify it to your needs
         $this->addSql('DROP INDEX UNIQ_64C19C1989D9B62 ON category');
+        $this->addSql('ALTER TABLE category CHANGE description description VARCHAR(50) DEFAULT NULL');
     }
 }
