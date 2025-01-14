@@ -9,7 +9,7 @@ auth:
     path: /api/auth
     methods: ['POST']
 
-app_password_reset:
+test_send_mail:
     path: /password/reset
     controller: App\Controller\PasswordResetController::sendMail
     methods: ['POST']

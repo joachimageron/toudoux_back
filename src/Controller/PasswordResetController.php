@@ -13,7 +13,7 @@ use OpenApi\Annotations as OA;
 
 class PasswordResetController extends AbstractController
 {
-    #[Route('/password/reset', name: 'app_password_reset', methods: ['POST'])]
+    #[Route('/password/reset', name: 'test_send_mail', methods: ['POST'])]
     /**
      * @OA\Post(
      *     path="/password/reset",
@@ -35,36 +35,32 @@ class PasswordResetController extends AbstractController
      *     )
      * )
      */
-    private SendMail $sendMail;
 
-    public function __construct(SendMail $sendMail)
+    private $sendMailService;
+
+    public function __construct(SendMail $sendMailService)
     {
-        $this->sendMail = $sendMail;
+        $this->sendMailService = $sendMailService;
     }
 
-    public function sendMail(Request $request, EntityManagerInterface $entityManager): Response
+    public function sendMail(Request $request, SendMail $sendMail): Response
     {
-        // Récupérer les données JSON depuis la requête POST
         $data = json_decode($request->getContent(), true);
-        if (!isset($data['email']) || empty($data['email'])) {
-            return new Response('Email invalide ou manquant.', Response::HTTP_BAD_REQUEST);
+        $email = $data['email'] ?? null;
+
+        if (!$email) {
+            return new Response("Invalid input", Response::HTTP_BAD_REQUEST);
         }
-    
-        $email = $data['email'];
-    
-        // Chercher l'utilisateur dans la base de données
-        $userRepository = $entityManager->getRepository(User::class);
-        $user = $userRepository->findOneBy(['email' => $email]);
-    
-        // Vérifier si l'utilisateur existe
-        if (!$user) {
-            return new Response('Utilisateur non trouvé.', Response::HTTP_NOT_FOUND);
+
+        $user = new User();
+        $user->setEmail($email);
+
+        $result = $sendMail->send($user);
+
+        if ($result) {
+            return new Response("Email envoyé avec succès.");
+        } else {
+            return new Response("Échec de l'envoi de l'email.", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-    
-        // Appeler le service pour envoyer l'email
-        $this->sendMail->send($user);
-    
-        // Retourner une réponse appropriée
-        return new Response("Email envoyé avec succès.", Response::HTTP_OK);
     }
 }
