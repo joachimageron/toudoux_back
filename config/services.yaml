@@ -31,3 +31,10 @@ services:
     App\EventSubscriber\CategorySubscriber:
         tags:
             - { name: 'doctrine.event_subscriber' }
+
+    App\Doctrine\Extension\CurrentUserExtension:
+        arguments:
+            $security: '@security.helper'  # ou '@security' selon votre version
+        tags:
+            - { name: 'api_platform.doctrine.orm.query_extension.collection' }
+            - { name: 'api_platform.doctrine.orm.query_extension.item' }
