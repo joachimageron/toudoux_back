@@ -7,6 +7,8 @@ use Doctrine\Bundle\DoctrineBundle\EventSubscriber\EventSubscriberInterface;
 use Doctrine\ORM\Events;
 use Doctrine\ORM\Event\PrePersistEventArgs;
 use Symfony\Bundle\SecurityBundle\Security;
+use Cocur\Slugify\Slugify;
+
 
 class CategorySubscriber implements EventSubscriberInterface
 {
@@ -33,17 +35,19 @@ class CategorySubscriber implements EventSubscriberInterface
             return;
         }
 
+        // Associer la catégorie à l’utilisateur connecté (si user est non null)
+        $user = $this->security->getUser();
+        $entity->setUser($user);
+
         // Définir une valeur pour slug, pour éviter qu'il soit null
-        $entity->setSlug('coucou');
+        $slugify = new Slugify();
+        $slug = $slugify->slugify($entity->getName() . '-' . $user->getId());
+        $entity->setSlug($slug);
 
         // Définir la date de création et de mise à jour
         $entity->setCreatedAt(new \DateTimeImmutable());
         $entity->setUpdatedAt(new \DateTimeImmutable());
 
-        // Associer la catégorie à l’utilisateur connecté (si user est non null)
-        $user = $this->security->getUser();
-        if ($user) {
-            $entity->setUser($user);
-        }
+
     }
 }
