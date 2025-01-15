@@ -2,6 +2,11 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\DateFilter;
+use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
+use ApiPlatform\Doctrine\Orm\Filter\RangeFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\GetCollection;
@@ -25,6 +30,21 @@ use Symfony\Component\Serializer\Annotation\Groups;
         )
     ]
 )]
+#[ApiFilter(SearchFilter::class, properties: [
+    // partial => "contient", start => "commence par", exact => "valeur exacte"
+    'title' => 'partial',
+    'description' => 'partial',
+    // booléen => souvent "exact"
+    'done' => 'exact'
+])]
+#[ApiFilter(DateFilter::class, properties: ['dueDate'])]
+#[ApiFilter(RangeFilter::class, properties: ['priority'])]
+#[ApiFilter(OrderFilter::class, properties: [
+    'dueDate' => 'ASC',
+    'priority' => 'ASC',
+    'createdAt' => 'ASC',
+    'updatedAt' => 'ASC'
+], arguments: ['orderParameterName' => 'order'])]
 class Task
 {
     public const string GROUP_READ = 'task:read';
