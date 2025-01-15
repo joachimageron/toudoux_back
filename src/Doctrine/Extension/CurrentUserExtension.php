@@ -3,6 +3,7 @@
 namespace App\Doctrine\Extension;
 
 use App\Entity\Category;
+use App\Entity\Task;
 use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Extension\QueryItemExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
@@ -20,54 +21,74 @@ class CurrentUserExtension implements QueryCollectionExtensionInterface, QueryIt
     }
 
     /**
-     * S'applique à toutes les collections (GET /api/categories).
+     * S'applique aux collections (GET /api/categories, GET /api/tasks, etc.).
      */
     public function applyToCollection(
-        QueryBuilder $qb,
+        QueryBuilder                $queryBuilder,
         QueryNameGeneratorInterface $queryNameGenerator,
-        string $resourceClass,
-        Operation $operation = null,
-        array $context = []
+        string                      $resourceClass,
+        Operation                   $operation = null,
+        array                       $context = []
     ): void {
-        // On ne filtre que si la ressource correspond à Category
-        if (Category::class === $resourceClass) {
-            $rootAlias = $qb->getRootAliases()[0];
-            $user = $this->security->getUser();
+        $user = $this->security->getUser();
 
-            if ($user) {
-                // Filtre par l'utilisateur connecté
-                $qb
-                    ->andWhere(sprintf('%s.user = :current_user', $rootAlias))
-                    ->setParameter('current_user', $user->getId());
-            } else {
-                // Si pas d'utilisateur, on renvoie 0 résultat (ou on peut lever une exception)
-                $qb->andWhere('1 = 0');
-            }
+        // Si pas d'utilisateur connecté, on renvoie rien ou on lève une exception
+        if (!$user) {
+            $queryBuilder->andWhere('1 = 0');
+            return;
+        }
+
+        $rootAlias = $queryBuilder->getRootAliases()[0];
+
+        // On filtre les Category en fonction de l'utilisateur
+        if (Category::class === $resourceClass) {
+            $queryBuilder
+                ->andWhere(sprintf('%s.user = :current_user', $rootAlias))
+                ->setParameter('current_user', $user->getId());
+        }
+        // On filtre aussi les Task si vous rendez accessible /api/tasks
+        elseif (Task::class === $resourceClass) {
+            // Comme Task est relié à Category, on joint pour vérifier que Category appartient à l'utilisateur
+            $queryBuilder
+                ->join(sprintf('%s.category', $rootAlias), 'c')
+                ->andWhere('c.user = :current_user')
+                ->setParameter('current_user', $user->getId());
         }
     }
 
     /**
-     * S'applique aux items (GET /api/categories/{id}).
+     * S'applique aux items (GET /api/categories/{id}, GET /api/tasks/{id}, etc.).
      */
     public function applyToItem(
-        QueryBuilder $qb,
+        QueryBuilder                $queryBuilder,
         QueryNameGeneratorInterface $queryNameGenerator,
-        string $resourceClass,
-        array $identifiers,
-        Operation $operation = null,
-        array $context = []
+        string                      $resourceClass,
+        array                       $identifiers,
+        Operation                   $operation = null,
+        array                       $context = []
     ): void {
-        if (Category::class === $resourceClass) {
-            $rootAlias = $qb->getRootAliases()[0];
-            $user = $this->security->getUser();
+        $user = $this->security->getUser();
 
-            if ($user) {
-                $qb
-                    ->andWhere(sprintf('%s.user = :current_user', $rootAlias))
-                    ->setParameter('current_user', $user->getId());
-            } else {
-                $qb->andWhere('1 = 0');
-            }
+        // Si pas d'utilisateur connecté, on renvoie rien ou on lève une exception
+        if (!$user) {
+            $queryBuilder->andWhere('1 = 0');
+            return;
+        }
+
+        $rootAlias = $queryBuilder->getRootAliases()[0];
+
+        // Filtre sur Category
+        if (Category::class === $resourceClass) {
+            $queryBuilder
+                ->andWhere(sprintf('%s.user = :current_user', $rootAlias))
+                ->setParameter('current_user', $user->getId());
+        }
+        // Filtre sur Task
+        elseif (Task::class === $resourceClass) {
+            $queryBuilder
+                ->join(sprintf('%s.category', $rootAlias), 'c')
+                ->andWhere('c.user = :current_user')
+                ->setParameter('current_user', $user->getId());
         }
     }
 }
