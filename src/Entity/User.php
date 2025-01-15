@@ -96,6 +96,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function __construct()
     {
         $this->categories = new ArrayCollection();
+        $this->imports = new ArrayCollection();
     }
 
     #[ORM\Column(nullable: true)]
@@ -103,6 +104,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     
     #[ORM\Column(type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $resetTokenExpiresAt = null;
+
+    /**
+     * @var Collection<int, ImportData>
+     */
+    #[ORM\OneToMany(targetEntity: ImportData::class, mappedBy: 'user')]
+    private Collection $imports;
 
     public function getId(): ?int
     {
@@ -235,6 +242,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setResetTokenExpiresAt(?\DateTimeInterface $resetTokenExpiresAt): self
     {
         $this->resetTokenExpiresAt = $resetTokenExpiresAt;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ImportData>
+     */
+    public function getImports(): Collection
+    {
+        return $this->imports;
+    }
+
+    public function addImport(ImportData $import): static
+    {
+        if (!$this->imports->contains($import)) {
+            $this->imports->add($import);
+            $import->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeImport(ImportData $import): static
+    {
+        if ($this->imports->removeElement($import)) {
+            // set the owning side to null (unless already changed)
+            if ($import->getUser() === $this) {
+                $import->setUser(null);
+            }
+        }
 
         return $this;
     }
