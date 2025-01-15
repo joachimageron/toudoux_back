@@ -4,8 +4,10 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
 use App\Repository\CategoryRepository;
+use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Events;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -17,6 +19,8 @@ use Doctrine\DBAL\Types\Types;
     normalizationContext: ['groups' => [Category::GROUP_READ]],
     denormalizationContext: ['groups' => [Category::GROUP_WRITE]]
 )]
+#[AsEntityListener(event: Events::prePersist, method: 'prePersist', entity: Category::class)]
+#[AsEntityListener(event: Events::preUpdate, method: 'preUpdate', entity: Category::class)]
 class Category
 {
     public const GROUP_READ = 'category:read';

@@ -11,7 +11,9 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\GetCollection;
 use App\Repository\TaskRepository;
+use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\Events;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -45,6 +47,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
     'createdAt' => 'ASC',
     'updatedAt' => 'ASC'
 ], arguments: ['orderParameterName' => 'order'])]
+#[AsEntityListener(event: Events::prePersist, method: 'prePersist', entity: Task::class)]
+#[AsEntityListener(event: Events::preUpdate, method: 'preUpdate', entity: Task::class)]
 class Task
 {
     public const string GROUP_READ = 'task:read';
