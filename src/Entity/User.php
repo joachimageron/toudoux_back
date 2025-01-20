@@ -227,7 +227,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getResetTokenExpiresAt(): ?\DateTimeInterface
+    public function setTokenExpirationDate(): ?\DateTimeInterface
     {
         return $this->resetTokenExpiresAt;
     }

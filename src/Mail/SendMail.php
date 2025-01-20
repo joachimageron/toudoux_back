@@ -16,11 +16,12 @@ class SendMail
 
     public function send(User $user): bool
     {
+        $resetLink = sprintf('http://localhost:3000/reset-password?token=%s', $user->getResetToken());
         $email = (new Email())
             ->from("sandaraly1@gmail.com")
             ->to($user->getEmail())
             ->subject("Inscription à la newsletter")
-            ->text("Votre email " . $user->getEmail() . " a bien été enregistré, merci.");
+            ->text("Votre email " . $user->getEmail() . " a bien été enregistré, merci." . $resetLink);
 
         try {
             $this->mailer->send($email);
