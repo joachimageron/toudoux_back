@@ -4,55 +4,73 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
 use App\Repository\CategoryRepository;
+use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Events;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Doctrine\DBAL\Types\Types;
 
-
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
 #[ApiResource(
-    normalizationContext: ['groups' => ['category:read']],
-    denormalizationContext: ['groups' => ['category:write']]
+    normalizationContext: ['groups' => [Category::GROUP_READ]],
+    denormalizationContext: ['groups' => [Category::GROUP_WRITE]]
 )]
-#[HasLifecycleCallbacks]
+#[AsEntityListener(event: Events::prePersist, method: 'prePersist', entity: Category::class)]
+#[AsEntityListener(event: Events::preUpdate, method: 'preUpdate', entity: Category::class)]
 class Category
 {
+    public const GROUP_READ = 'category:read';
+    public const GROUP_WRITE = 'category:write';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['category:read'])]
+    #[Groups([self::GROUP_READ])]
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups(['category:read', 'category:write'])]
+    #[Groups([self::GROUP_READ, self::GROUP_WRITE])]
     private ?string $name = null;
 
     #[ORM\Column(length: 50, unique: true)]
-    #[Groups(['category:read'])]
+    #[Groups([self::GROUP_READ])]
     private ?string $slug = null;
 
     #[ORM\Column(length: 250, nullable: true)]
-    #[Groups(['category:read', 'category:write'])]
+    #[Groups([self::GROUP_READ, self::GROUP_WRITE])]
     private ?string $description = null;
 
     #[ORM\Column(length: 50, nullable: true)]
-    #[Groups(['category:read', 'category:write'])]
+    #[Groups([self::GROUP_READ, self::GROUP_WRITE])]
     private ?string $color = null;
 
     #[ORM\Column]
-    #[Groups(['category:read'])]
+    #[Groups([self::GROUP_READ])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column]
     #[Gedmo\Timestampable]
-    #[Groups(['category:read'])]
+    #[Groups([self::GROUP_READ])]
     private ?\DateTimeImmutable $updatedAt = null;
 
     #[ORM\ManyToOne(inversedBy: 'categories')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
+
+    /**
+     * @var Collection<int, Task>
+     */
+    #[ORM\OneToMany(targetEntity: Task::class, mappedBy: 'category', orphanRemoval: true)]
+    private Collection $tasks;
+
+    public function __construct()
+    {
+        $this->tasks = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -139,6 +157,36 @@ class Category
     public function setUser(?user $user): static
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Task>
+     */
+    public function getTasks(): Collection
+    {
+        return $this->tasks;
+    }
+
+    public function addTask(Task $task): static
+    {
+        if (!$this->tasks->contains($task)) {
+            $this->tasks->add($task);
+            $task->setCategory($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTask(Task $task): static
+    {
+        if ($this->tasks->removeElement($task)) {
+            // set the owning side to null (unless already changed)
+            if ($task->getCategory() === $this) {
+                $task->setCategory(null);
+            }
+        }
 
         return $this;
     }
