@@ -39,4 +39,9 @@ final class UserPasswordHasher implements ProcessorInterface
         // Déléguer la persistance au processeur configuré
         return $this->processor->process($data, $operation, $uriVariables, $context);
     }
+
+    public function hashPassword(User $user, string $plainPassword): string
+    {
+        return $this->passwordHasher->hashPassword($user, $plainPassword);
+    }
 }

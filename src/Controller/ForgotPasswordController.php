@@ -12,12 +12,12 @@ use App\Mail\SendMail;
 use OpenApi\Annotations as OA;
 use App\Repository\UserRepository;
 
-class PasswordResetController extends AbstractController
+class ForgotPasswordController extends AbstractController
 {
-    #[Route('/password/reset', name: 'test_send_mail', methods: ['POST'])]
+    #[Route('/forgot-password', name: 'forgot-password', methods: ['POST'])]
     /**
      * @OA\Post(
-     *     path="/password/reset",
+     *     path="/forgot-password",
      *     summary="Send password reset email",
      *     @OA\RequestBody(
      *         required=true,
@@ -37,9 +37,9 @@ class PasswordResetController extends AbstractController
      * )
      */
 
-    private SendMail $sendMailService;
-    private EntityManagerInterface $entityManager;
-    private UserRepository $userRepository;
+    private $sendMailService;
+    private $entityManager;
+    private $userRepository;
 
     public function __construct(SendMail $sendMailService, EntityManagerInterface $entityManager, UserRepository $userRepository)
     {
@@ -70,12 +70,10 @@ class PasswordResetController extends AbstractController
 
         // Save the token and expiration date to the user
         $user->setResetToken($resetToken);
-        $user->setTokenExpirationDate($expireToken);
-        $this->saveUser($user); // Assuming you have a method to save the user
-
-        // Create the reset link
-        $resetLink = sprintf('https://yourdomain.com/reset-password?token=%s', $resetToken);
-
+        $user->setResetTokenExpiresAt($expireToken);
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+        
         // Send the email
         $result = $sendMail->send($user);
 
@@ -86,13 +84,4 @@ class PasswordResetController extends AbstractController
         }
     }
 
-    private function findUserByEmail(string $email): ?User
-    {
-        // Implement this method to find the user by email
-    }
-
-    private function saveUser(User $user): void
-    {
-        // Implement this method to save the user
-    }
 }

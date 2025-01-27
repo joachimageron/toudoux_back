@@ -9,10 +9,20 @@ auth:
     path: /api/auth
     methods: ['POST']
 
-test_send_mail:
-    path: /password/reset
-    controller: App\Controller\PasswordResetController::sendMail
+forgot-password:
+    path: /forgot-password
+    controller: App\Controller\ForgotPasswordController::sendMail
     methods: ['POST']
+
+reset-password:
+    path: /reset-password
+    controller: App\Controller\ResetPasswordController::controlToken
+    methods: ['GET']
+
+change-password:
+    path: /change-password
+    controller: App\Controller\ResetPasswordController::changePassword
+    methods: ['PUT']
 
 # config/routes.yaml
 app.swagger_ui:
