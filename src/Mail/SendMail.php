@@ -17,7 +17,7 @@ class SendMail
     public function send(User $user): bool
     {
         // Générer le lien de réinitialisation avec le token
-        $resetLink = sprintf('http://localhost:3000/reset-password?token=%s', $user->getResetToken());
+        $resetLink = sprintf('http://localhost:3000/password/reset-password?token=%s', $user->getResetToken());
     
         // Créer l'email avec un message personnalisé
         $email = (new Email())
