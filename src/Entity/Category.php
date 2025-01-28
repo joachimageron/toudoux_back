@@ -19,8 +19,6 @@ use Doctrine\DBAL\Types\Types;
     normalizationContext: ['groups' => [Category::GROUP_READ]],
     denormalizationContext: ['groups' => [Category::GROUP_WRITE]]
 )]
-#[AsEntityListener(event: Events::prePersist, method: 'prePersist', entity: Category::class)]
-#[AsEntityListener(event: Events::preUpdate, method: 'preUpdate', entity: Category::class)]
 class Category
 {
     public const GROUP_READ = 'category:read';

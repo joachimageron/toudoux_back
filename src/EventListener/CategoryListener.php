@@ -4,10 +4,14 @@ namespace App\EventListener;
 
 use App\Entity\Category;
 use Cocur\Slugify\Slugify;
+use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
 use Doctrine\ORM\Event\PrePersistEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
+use Doctrine\ORM\Events;
 use Symfony\Bundle\SecurityBundle\Security;
 
+#[AsEntityListener(event: Events::prePersist, method: 'prePersist', entity: Category::class)]
+#[AsEntityListener(event: Events::preUpdate, method: 'preUpdate', entity: Category::class)]
 class CategoryListener
 {
     private Security $security;
@@ -34,6 +38,7 @@ class CategoryListener
         // Définir les dates de création et de mise à jour
         $category->setCreatedAt(new \DateTimeImmutable());
         $category->setUpdatedAt(new \DateTimeImmutable());
+
     }
 
     /**

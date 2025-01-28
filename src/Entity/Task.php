@@ -47,8 +47,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
     'createdAt' => 'ASC',
     'updatedAt' => 'ASC'
 ], arguments: ['orderParameterName' => 'order'])]
-#[AsEntityListener(event: Events::prePersist, method: 'prePersist', entity: Task::class)]
-#[AsEntityListener(event: Events::preUpdate, method: 'preUpdate', entity: Task::class)]
 class Task
 {
     public const string GROUP_READ = 'task:read';

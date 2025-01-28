@@ -3,9 +3,13 @@
 namespace App\EventListener;
 
 use App\Entity\Task;
+use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
 use Doctrine\ORM\Event\PrePersistEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
+use Doctrine\ORM\Events;
 
+#[AsEntityListener(event: Events::prePersist, method: 'prePersist', entity: Task::class)]
+#[AsEntityListener(event: Events::preUpdate, method: 'preUpdate', entity: Task::class)]
 class TaskListener
 {
     public function prePersist(Task $task, PrePersistEventArgs $args): void
